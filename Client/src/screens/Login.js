@@ -11,7 +11,7 @@ constructor(props){
 render() {
     return (
       <div>
-       <h1>Hello Login Screen!</h1>
+       <h1>Hello Login!</h1>
       </div>
     );
   }
