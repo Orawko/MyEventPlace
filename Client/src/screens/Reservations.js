@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 
 class Reservations extends Component {
-    render(){
-        return(
-            <p>hej hej jeszcez raz!</p>
+    render() {
+        return (
+            <p>hej hej jeszcedsfz raz!</p>
         );
     }
 }
