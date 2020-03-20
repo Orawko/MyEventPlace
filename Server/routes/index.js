@@ -1,9 +1,22 @@
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
+let mysql = require('mysql');
+const config = require('../helpers/databaseConfig');
+const con = mysql.createConnection(config);
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+con.connect(function(err) {
+  if (err) throw err;
 });
+
+
+router.get('/', function(req, res, next) {
+  con.query("SELECT * FROM Rooms",
+      function (err, result, fields) {
+    if (err) throw err;
+    res.send(result);
+  });
+});
+
+
 
 module.exports = router;
