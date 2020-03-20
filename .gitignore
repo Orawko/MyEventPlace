@@ -1,7 +1,8 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+#See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
 /Client/node_modules
+/Server/node_modules
 /.pnp
 .pnp.js
 
@@ -19,7 +20,10 @@
 .env.production.local
 
 # mockup
-/mockup
+/Mockup
+
+#database files
+/Database
 
 npm-debug.log*
 yarn-debug.log*
