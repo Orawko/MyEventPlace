@@ -4,22 +4,25 @@ Web application to find, browse and book conference rooms on selected dates.
 
 ## Client
 
-Client application is created using React
+Client skeleton created with `yarn create react-app Client` command
 
 ## Server
 
-Based on Node.js
+Server skeleton was initialized with express-generator.
 
-## Available Scripts
+`express --view=pug Server`
 
-In the project directory, you can run:
+### Download & run
 
-### `yarn start`
+Use `npm install` command to download dependencies in Server directory.
+Next, you can run the app with `DEBUG=Server:* npm start`
+Then load http://localhost:3000/ in your browser to access the app.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Database
 
-### `yarn build`
+MySQL database, created in Workbench
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+<p align="center">
+  <img src="https://github.com/Orawko/MyEventPlace/blob/master/img/schema.png?raw=true"/>
+</p>
+

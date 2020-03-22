@@ -9,7 +9,7 @@ con.connect(function (err) {
 });
 
 router.get('/', function (req, res, next) {
-    res.send("home");
+    res.send("index");
 });
 
 router.get('/result/:from/:to', function (req, res, next) {
