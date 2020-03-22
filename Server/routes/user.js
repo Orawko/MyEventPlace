@@ -9,7 +9,7 @@ con.connect(function (err) {
 });
 
 router.get('/', function (req, res, next) {
-    res.send("home");
+    res.send("users");
 });
 
 //select my reservation
@@ -59,9 +59,12 @@ router.get('/delete/:idReservations', function (req, res, next) {
     con.query(deleteQuery, function (err, result, fields) {
         if (err) {
             console.log(err);
+        }
+        if (result.affectedRows === 1) {
+            res.send(true);
+        } else {
             res.send(false);
         }
-        res.send(true);
     });
 });
 
