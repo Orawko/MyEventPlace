@@ -3,14 +3,16 @@ const router = express.Router();
 const mysql = require('mysql');
 const config = require('../helpers/databaseConfig');
 const con = mysql.createConnection(config);
+let middleware = require('../helpers/middleware');
 
 con.connect(function (err) {
     if (err) throw err;
 });
 
-router.get('/', function (req, res, next) {
-    res.send("admin");
-});
+router.get('/', middleware.checkToken,
+    function (req, res, next) {
+        res.send("Admin panel");
+    });
 
 //accept pending
 router.get('/accept/:idReservations', function (req, res, next) {
