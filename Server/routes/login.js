@@ -10,18 +10,22 @@ con.connect(function (err) {
     if (err) throw err;
 });
 
+router.get('/', function (req, res, next) {
+    res.send("Sign in!");
+});
+
 router.post('/', function (req, res, next) {
-    let username = req.body.username;
+    let email = req.body.email;
     let password = req.body.password;
 
-    if (username && password) {
-        const query = `SELECT COUNT(*) as count from Users WHERE\
-             email="${username}" AND password="${password}";`;
+    if (email && password) {
+        const query = `SELECT * from Users WHERE\
+             email="${email}" AND password="${password}";`;
         console.log(query);
         con.query(query, function (err, result, fields) {
             if (err) throw err;
-            if (result[0].count === 1) {
-                let token = jwt.sign({username: username},
+            if (result.length === 1) {
+                let token = jwt.sign({userData: result[0]},
                     config.secret,
                     {
                         expiresIn: '2h' // expires in 2 hours
