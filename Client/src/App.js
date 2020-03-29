@@ -1,7 +1,8 @@
 import React, {Component} from "react";
-import Searchscreen from './screens/Search'
+import SearchScreen from './screens/SearchScreen'
 import Reservations from './screens/Reservations'
-import Loginscreen from './screens/Login'
+import LoginRequestScreen from './screens/LoginRequestScreen'
+
 import {
     BrowserRouter as Router,
     Switch,
@@ -10,38 +11,43 @@ import {
 } from "react-router-dom";
 
 class App extends Component {
+
     constructor(props) {
         super(props);
-        this.state = {isLoggedIn: false};
+        this.state = {isAuthenticated: true};
     }
 
     render() {
         return (
             <Router>
-                {this.state.isLoggedIn ? <div>
-                    <nav>
-                        <ul>
-                            <li>
-                                <Link to="/">Find place</Link>
-                            </li>
-                            <li>
-                                <Link to="/reservations">Reservations</Link>
-                            </li>
-                        </ul>
-                    </nav>
+                {this.state.isAuthenticated ? <div>
+                    {/*<nav>*/}
+                    {/*    <ul>*/}
+                    {/*        <li>*/}
+                    {/*            <Link to="/">Find place - public</Link>*/}
+                    {/*        </li>*/}
+                    {/*        <li>*/}
+                    {/*            <Link to="/reservations">Reservations - protected</Link>*/}
+                    {/*        </li>*/}
+                    {/*        <li>*/}
+                    {/*            <Link to="/login">Login</Link>*/}
+                    {/*        </li>*/}
+                    {/*    </ul>*/}
+                    {/*</nav>*/}
 
                     <Switch>
+                        <Route path="/login">
+                            <LoginRequestScreen/>
+                        </Route>
                         <Route path="/reservations">
                             <Reservations/>
                         </Route>
-                        <Route path="/login">
-                            <Loginscreen/>
-                        </Route>
                         <Route path="/">
-                            <Searchscreen/>
+                            <SearchScreen/>
                         </Route>
                     </Switch>
-                </div> : <Loginscreen/>}
+
+                </div> : <LoginRequestScreen/>}
 
             </Router>
         );
