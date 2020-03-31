@@ -15,7 +15,7 @@ class LoginRequestScreen extends Component {
             <div id={'main'}>
                 <div id={'container'}>
                     <div id={'logo'}>
-                        <img src={require('../images/horizontal.png')} alt="My event place"/>
+                        <img id={'icon'} src={require('../images/horizontal.png')} alt="My event place"/>
                     </div>
 
                     <div id={'loginGui'}>
