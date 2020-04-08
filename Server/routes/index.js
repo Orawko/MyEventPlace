@@ -15,7 +15,8 @@ router.get('/', middleware.checkToken, function (req, res, next) {
 });
 
 router.get('/result/:from/:to', middleware.checkToken, function (req, res, next) {
-    const query = `SELECT * from Reservations NATURAL JOIN Rooms WHERE NOT ("${req.params.from}" <= dateEnd AND "${req.params.to}" >= dateStart);`;
+    const query = `SELECT * from Reservations NATURAL JOIN Rooms WHERE NOT \
+    ("${req.params.from}" <= dateEnd AND "${req.params.to}" >= dateStart);`;
     console.log(query);
     con.query(query, function (err, result, fields) {
         if (err) throw err;

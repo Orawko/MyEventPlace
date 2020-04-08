@@ -1,4 +1,4 @@
-#navigationSearch {
+#homeHeader {
     width: 100%;
     height: 30vh;
     display: flex;
@@ -6,7 +6,7 @@
     flex-direction: column;
 }
 
-#buttonsSearch {
+#homeNavButtons {
     height: 10vh;
     display: flex;
     align-items: center;
@@ -15,7 +15,7 @@
     color: white;
 }
 
-#dateSelect{
+#homeContent{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -28,19 +28,36 @@
     flex: 1;
 }
 
-h2{
-    color: white;
+.navButtonHighlighted{
+    color: cornflowerblue;
+    cursor: default;
 }
 
-#searchOptions{
+.navButtonText {
+    cursor: pointer;
+}
+
+.navButtonText:hover {
+    transition: color 0.3s ease;
+    cursor: pointer;
+    color: cornflowerblue;
+
+}
+
+h4, h2{
+    color: white;
+    cursor: default;
+}
+
+h4 {
+    margin: 5px;
+}
+
+#homeSearchOptions{
     flex: 1;
 }
 
-h2:hover {
-    color: cornflowerblue;
-}
-
-#logoSearch{
+#homeLogo{
     height: 20vh;
     margin: 0 auto;
 }
@@ -51,3 +68,8 @@ img{
     display: block;
     margin: 5px auto;
 }
+
+#additionalSearchParams {
+    padding: 0 10% 10% 0;
+}
+

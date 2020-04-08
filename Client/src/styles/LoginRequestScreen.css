@@ -41,6 +41,14 @@
     cursor: pointer;
 }
 
+a > #loginButton{
+    border-radius: 10px;
+    width: 90%;
+    height: 15%;
+    font-size: 15px;
+}
+
+
 #loginButton{
     border-radius: 10px;
     width: 90%;
@@ -86,4 +94,8 @@ select:focus,
 textarea:focus,
 button:focus {
     outline: none;
+}
+
+#returnLink{
+    color: white;
 }
