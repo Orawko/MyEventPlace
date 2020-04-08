@@ -3,17 +3,18 @@ const router = express.Router();
 const mysql = require('mysql');
 const config = require('../helpers/databaseConfig');
 const con = mysql.createConnection(config);
+let middleware = require('../helpers/middleware');
 
 con.connect(function (err) {
     if (err) throw err;
 });
 
-router.get('/', function (req, res, next) {
+router.get('/', middleware.checkToken, function (req, res, next) {
     res.send("users");
 });
 
 //select my reservation
-router.get('/:idUser', function (req, res, next) {
+router.get('/:idUser', middleware.checkToken, function (req, res, next) {
     const query = `SELECT * from Reservations NATURAL JOIN Rooms WHERE idUsers=${req.params.idUser};`;
     console.log(query);
     con.query(query, function (err, result, fields) {
@@ -23,7 +24,7 @@ router.get('/:idUser', function (req, res, next) {
 });
 
 //edit date of my reservation
-router.get('/edit/:from/:to/:idRooms/:idUsers/:idReservations', function (req, res, next) {
+router.get('/edit/:from/:to/:idRooms/:idUsers/:idReservations', middleware.checkToken, function (req, res, next) {
     const collidingReservationsQuery = `SELECT COUNT(*) as count from Reservations NATURAL JOIN Rooms WHERE \
     ("${req.params.from}" <= dateEnd AND "${req.params.to}" >= dateStart ) AND idRooms=${req.params.idRooms};`;
     console.log(collidingReservationsQuery);
@@ -53,7 +54,7 @@ router.get('/edit/:from/:to/:idRooms/:idUsers/:idReservations', function (req, r
 });
 
 //delete reservation
-router.get('/delete/:idReservations', function (req, res, next) {
+router.get('/delete/:idReservations', middleware.checkToken, function (req, res, next) {
     const deleteQuery = `DELETE FROM Reservations WHERE idReservations=${req.params.idReservations} LIMIT 1;`;
     console.log(deleteQuery);
     con.query(deleteQuery, function (err, result, fields) {

@@ -9,13 +9,13 @@ con.connect(function (err) {
     if (err) throw err;
 });
 
-router.get('/', middleware.checkToken,
+router.get('/', middleware.checkAdmin,
     function (req, res, next) {
         res.send("Admin panel");
     });
 
 //accept pending
-router.get('/accept/:idReservations', function (req, res, next) {
+router.get('/accept/:idReservations', middleware.checkAdmin, function (req, res, next) {
     const deleteQuery = `UPDATE Reservations SET status="accepted" WHERE idReservations="${req.params.idReservations}" LIMIT 1;`;
     console.log(deleteQuery);
     con.query(deleteQuery, function (err, result, fields) {
@@ -31,7 +31,7 @@ router.get('/accept/:idReservations', function (req, res, next) {
 });
 
 //decline pending or delete reservation
-router.get('/decline/:idReservations', function (req, res, next) {
+router.get('/decline/:idReservations', middleware.checkAdmin, function (req, res, next) {
     const deleteQuery = `DELETE FROM Reservations WHERE idReservations="${req.params.idReservations}" LIMIT 1;`;
     console.log(deleteQuery);
     con.query(deleteQuery, function (err, result, fields) {
@@ -47,7 +47,7 @@ router.get('/decline/:idReservations', function (req, res, next) {
 });
 
 //update reservation
-router.get('/update/:from/:to/:idUsers/:idReservations', function (req, res, next) {
+router.get('/update/:from/:to/:idUsers/:idReservations', middleware.checkAdmin, function (req, res, next) {
     const collidingReservationsQuery = `SELECT COUNT(*) as count from Reservations NATURAL JOIN Rooms WHERE \
     ("${req.params.from}" <= dateEnd AND "${req.params.to}" >= dateStart ) AND idRooms=${req.params.idRooms};`;
     console.log(collidingReservationsQuery);
@@ -77,7 +77,7 @@ router.get('/update/:from/:to/:idUsers/:idReservations', function (req, res, nex
 });
 
 //delete user
-router.get('/deleteUser/:email', function (req, res, next) {
+router.get('/deleteUser/:email', middleware.checkAdmin, function (req, res, next) {
     const deleteQuery = `DELETE FROM Users WHERE email="${req.params.email}" LIMIT 1;`;
     console.log(deleteQuery);
     con.query(deleteQuery, function (err, result, fields) {

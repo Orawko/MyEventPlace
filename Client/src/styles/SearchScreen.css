@@ -1,0 +1,75 @@
+#homeHeader {
+    width: 100%;
+    height: 30vh;
+    display: flex;
+    align-content: center;
+    flex-direction: column;
+}
+
+#homeNavButtons {
+    height: 10vh;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: row;
+    color: white;
+}
+
+#homeContent{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 90%;
+    margin: 20px auto;
+}
+
+#dateRangeWrapper{
+    text-align: center;
+    flex: 1;
+}
+
+.navButtonHighlighted{
+    color: cornflowerblue;
+    cursor: default;
+}
+
+.navButtonText {
+    cursor: pointer;
+}
+
+.navButtonText:hover {
+    transition: color 0.3s ease;
+    cursor: pointer;
+    color: cornflowerblue;
+
+}
+
+h4, h2{
+    color: white;
+    cursor: default;
+}
+
+h4 {
+    margin: 5px;
+}
+
+#homeSearchOptions{
+    flex: 1;
+}
+
+#homeLogo{
+    height: 20vh;
+    margin: 0 auto;
+}
+
+img{
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    margin: 5px auto;
+}
+
+#additionalSearchParams {
+    padding: 0 10% 10% 0;
+}
+

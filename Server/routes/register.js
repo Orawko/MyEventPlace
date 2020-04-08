@@ -8,10 +8,15 @@ con.connect(function (err) {
     if (err) throw err;
 });
 
-router.get('/:email/:name/:surname/:phone/:password', function (req, res, next) {
+router.post('/', function (req, res, next) {
+    let email = req.body.email;
+    let name = req.body.name;
+    let surname = req.body.surname;
+    let phone = req.body.phone;
+    let password = req.body.password;
+
     const query = `INSERT INTO Users (email, name, surname, phone, password, superuser) VALUES \
-    ("${req.params.email}", "${req.params.name}", "${req.params.surname}", \
-    "${req.params.phone}", "${req.params.password}", 0);`;
+    ("${email}", "${name}", "${surname}", "${phone}", "${password}", 0);`;
     console.log(query);
     con.query(query,
         function (err, result, fields) {
