@@ -73,3 +73,19 @@ img{
     padding: 0 10% 10% 0;
 }
 
+#roomsList{
+    list-style-type:none;
+    padding-inline-start: 0;
+}
+
+.roomOffer{
+    display: flex;
+    justify-content: space-between;
+    margin: 0 2vw;
+}
+
+#roomImg{
+    min-width: 30vw;
+    height: auto;
+    margin: auto 0;
+}

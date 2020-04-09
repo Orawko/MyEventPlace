@@ -14,9 +14,10 @@ router.get('/', middleware.checkToken, function (req, res, next) {
     res.send("index");
 });
 
-router.get('/result/:from/:to', middleware.checkToken, function (req, res, next) {
+router.get('/result/:from/:to/:maxPricePerDay/:minCapacity', middleware.checkToken, function (req, res, next) {
     const query = `SELECT * from Reservations NATURAL JOIN Rooms WHERE NOT \
-    ("${req.params.from}" <= dateEnd AND "${req.params.to}" >= dateStart);`;
+    ("${req.params.from}" <= dateEnd AND "${req.params.to}" >= dateStart) AND \
+    pricePerDay <= ${req.params.maxPricePerDay} AND capacity >= ${req.params.minCapacity};`;
     console.log(query);
     con.query(query, function (err, result, fields) {
         if (err) throw err;

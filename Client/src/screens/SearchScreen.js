@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import '../styles/SearchScreen.css';
 import Line from '../components/line';
+import RoomsList from '../components/roomsList';
 import 'react-date-range/dist/styles.css'; // main style file
 import 'react-date-range/dist/theme/default.css'; // theme css file
 import {DateRange} from 'react-date-range';
@@ -15,12 +16,42 @@ class SearchScreen extends Component {
                 endDate: new Date(),
                 key: 'selection',
             },
-            begin: '2020-01-02',
-            end: '2020-01-03',
-            price: 100000,
-            capacity: 10000,
-            resultsAvalible: false
+            from: '2020-01-02',
+            to: '2020-01-03',
+            maxPricePerDay: 100000,
+            minCapacity: 0,
+            resultsAvailable: []
         };
+    }
+
+    getSearchResults() {
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": `${localStorage.getItem('jwt')}`
+            }
+        };
+        fetch(`http://localhost:3000/result/${this.state.from}/${this.state.to}/${this.state.maxPricePerDay}/${this.state.minCapacity}`, requestOptions)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data && data.length > 0) {
+                    this.setState({
+                        resultsAvailable: data
+                    }, () => {
+                        console.log(this.state)
+                    });
+                } else {
+                    this.setState({
+                        resultsAvailable: []
+                    }, () => {
+                        console.log(this.state)
+                    });
+                    alert(`No rooms avalible!`);
+                }
+            })
+            .catch(() => alert(`Error occured! try later or login again`))
     }
 
     handleDateSelect(date) {
@@ -28,10 +59,10 @@ class SearchScreen extends Component {
             let selectionRange = Object.assign({}, prevState.selectionRange);
             selectionRange.startDate = date.selection.startDate;
             selectionRange.endDate = date.selection.endDate;
-            let begin = toMySqlDate(date.selection.startDate);
-            let end = toMySqlDate(date.selection.endDate);
+            let from = toMySqlDate(date.selection.startDate);
+            let to = toMySqlDate(date.selection.endDate);
 
-            return {selectionRange, begin, end};
+            return {selectionRange, from: from, to: to};
         })
     };
 
@@ -69,22 +100,20 @@ class SearchScreen extends Component {
                             <div id={'additionalSearchParams'}>
                                 <h4>Max price per day: </h4>
                                 <input className={'input'} type="number" placeholder={'price'}
-                                       onChange={evt => this.setState({price: evt.target.value})}/>
+                                       onChange={evt => this.setState({maxPricePerDay: evt.target.value})}/>
                                 <h4>Min capacity: </h4>
                                 <input className={'input'} type="number" placeholder={'capacity'}
-                                       onChange={evt => this.setState({capacity: evt.target.value})}/>
+                                       onChange={evt => this.setState({minCapacity: evt.target.value})}/>
                             </div>
                             <button id={'loginButton'}
                                     onClick={() => {
-                                        alert(`${this.state}`)
+                                        this.getSearchResults()
                                     }}
                             >Search
                             </button>
                         </div>
                     </div>
-                    {this.state.resultsAvalible ?
-                        <h1> Wyniki!</h1>
-                        : <div/>}
+                    <RoomsList data={this.state.resultsAvailable}/>
                 </div>
             </div>
         );

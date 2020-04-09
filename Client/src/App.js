@@ -21,9 +21,7 @@ class App extends Component {
     }
 
     authenticate() {
-        this.setState({isAuthenticated: true}, () => {
-            console.log(this.state)
-        });
+        this.setState({isAuthenticated: true});
     }
 
     setScreen(newScreen) {
