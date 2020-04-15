@@ -1,0 +1,21 @@
+
+.icon-ok-circled:before {
+    content: '\e800';
+}
+
+/* '' */
+.icon-logout:before {
+    content: '\e801';
+}
+
+/* '' */
+.icon-group:before {
+    content: '\e804';
+}
+
+/* '' */
+.icon-dollar:before {
+    content: '\f155';
+}
+
+/* '' */

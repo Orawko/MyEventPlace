@@ -15,7 +15,7 @@
     color: white;
 }
 
-#homeContent{
+#homeContent {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -23,18 +23,20 @@
     margin: 20px auto;
 }
 
-#dateRangeWrapper{
+#dateRangeWrapper {
     text-align: center;
     flex: 1;
 }
 
-.navButtonHighlighted{
+.navButtonHighlighted {
     color: cornflowerblue;
     cursor: default;
+    margin-top: 1vh;
 }
 
 .navButtonText {
     cursor: pointer;
+    margin-top: 1vh;
 }
 
 .navButtonText:hover {
@@ -44,25 +46,25 @@
 
 }
 
-h4, h2{
+h6, h5, h4, h2, h1 {
     color: white;
     cursor: default;
 }
 
-h4 {
+h4, h5 {
     margin: 5px;
 }
 
-#homeSearchOptions{
+#homeSearchOptions {
     flex: 1;
 }
 
-#homeLogo{
+#homeLogo {
     height: 20vh;
     margin: 0 auto;
 }
 
-img{
+img {
     max-width: 100%;
     max-height: 100%;
     display: block;
@@ -73,19 +75,57 @@ img{
     padding: 0 10% 10% 0;
 }
 
-#roomsList{
-    list-style-type:none;
+#roomsList {
+    list-style-type: none;
     padding-inline-start: 0;
 }
 
-.roomOffer{
+.roomOffer {
     display: flex;
     justify-content: space-between;
     margin: 0 2vw;
 }
 
-#roomImg{
+#roomImg {
     min-width: 30vw;
     height: auto;
     margin: auto 0;
+}
+
+.roomInfo {
+    min-width: 160px;
+}
+
+.roomDescription {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+#bookButton {
+    border-radius: 10px;
+    width: 80px;
+    height: 40px;
+    font-size: 15px;
+}
+
+#bookButton:hover {
+    transition: background-color 0.3s ease;
+    background-color: cornflowerblue;
+    cursor: pointer;
+}
+
+.deleteButton {
+    border-radius: 10px;
+    background-color: indianred;
+    width: 80px;
+    height: 40px;
+    font-size: 15px;
+    margin-left: 10px;
+}
+
+.deleteButton:hover {
+    transition: background-color 0.3s ease;
+    background-color: red;
+    cursor: pointer;
 }

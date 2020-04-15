@@ -3,19 +3,16 @@ import SearchScreen from './screens/SearchScreen'
 import Register from './screens/Register'
 import LoginRequestScreen from './screens/LoginRequestScreen'
 import Reservations from './screens/Reservations'
+import "./fontello/css/gates.css"
 
-import {
-    BrowserRouter as Router,
-    Switch,
-    Route, Redirect,
-} from "react-router-dom";
+import {BrowserRouter as Router, Route, Switch,} from "react-router-dom";
 
 class App extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            isAuthenticated: false,
+            isAuthenticated: false, //false!!!!!
             screen: 'search'
         };
     }

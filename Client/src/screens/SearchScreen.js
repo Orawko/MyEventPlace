@@ -1,11 +1,13 @@
 import React, {Component} from 'react';
 import '../styles/SearchScreen.css';
 import Line from '../components/line';
-import RoomsList from '../components/roomsList';
+import ResultList from '../components/list';
 import 'react-date-range/dist/styles.css'; // main style file
 import 'react-date-range/dist/theme/default.css'; // theme css file
 import {DateRange} from 'react-date-range';
 import {toMySqlDate} from '../helpers/methods';
+import {BookPopUp} from '../components/popups';
+
 
 class SearchScreen extends Component {
     constructor(props) {
@@ -16,13 +18,54 @@ class SearchScreen extends Component {
                 endDate: new Date(),
                 key: 'selection',
             },
-            from: '2020-01-02',
+            from: '2020-01-03',
             to: '2020-01-03',
-            maxPricePerDay: 100000,
+            maxPricePerDay: Number.MAX_SAFE_INTEGER,
             minCapacity: 0,
-            resultsAvailable: []
+            resultsAvailable: [],
+            showPopup: false,
+            bookingRoomIndex: 0
         };
     }
+
+    togglePopup = (index) => {
+        console.log(index);
+        this.setState({
+            showPopup: !this.state.showPopup,
+            bookingRoomIndex: index
+        });
+        this.getSearchResults();
+    };
+
+    confirmReservation = () => {
+        const formData = new URLSearchParams();
+        formData.append('idRooms', `${this.state.bookingRoomIndex}`);
+        formData.append('from', `${this.state.from}`);
+        formData.append('to', `${this.state.to}`);
+
+        console.log(this.state);
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": `${localStorage.getItem('jwt')}`
+            },
+            body: formData.toString(),
+        };
+        fetch('http://localhost:3000/add', requestOptions)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data && data.affectedRows === 1) {
+                    alert('your reservation is pending!')
+                    this.togglePopup(0);
+                } else {
+                    alert(`Invalid email or password`);
+                }
+            })
+            .catch(() => alert(`Invalid email or password`));
+    };
+
 
     getSearchResults() {
         const requestOptions = {
@@ -48,10 +91,10 @@ class SearchScreen extends Component {
                     }, () => {
                         console.log(this.state)
                     });
-                    alert(`No rooms avalible!`);
+                    alert(`No rooms available!`);
                 }
             })
-            .catch(() => alert(`Error occured! try later or login again`))
+            .catch(() => alert(`Error occurred! try later or login again`))
     }
 
     handleDateSelect(date) {
@@ -100,10 +143,16 @@ class SearchScreen extends Component {
                             <div id={'additionalSearchParams'}>
                                 <h4>Max price per day: </h4>
                                 <input className={'input'} type="number" placeholder={'price'}
-                                       onChange={evt => this.setState({maxPricePerDay: evt.target.value})}/>
+                                       onChange={evt => this.setState({
+                                           maxPricePerDay:
+                                               Number(evt.target.value) > 0 ? evt.target.value : Number.MAX_SAFE_INTEGER
+                                       })}/>
                                 <h4>Min capacity: </h4>
                                 <input className={'input'} type="number" placeholder={'capacity'}
-                                       onChange={evt => this.setState({minCapacity: evt.target.value})}/>
+                                       onChange={evt => this.setState({
+                                           minCapacity:
+                                               Number(evt.target.value) > 0 ? evt.target.value : 0
+                                       })}/>
                             </div>
                             <button id={'loginButton'}
                                     onClick={() => {
@@ -113,7 +162,10 @@ class SearchScreen extends Component {
                             </button>
                         </div>
                     </div>
-                    <RoomsList data={this.state.resultsAvailable}/>
+                    <ResultList data={this.state.resultsAvailable} myReservations={false} showPopup={this.togglePopup}/>
+                    {this.state.showPopup ?
+                        <BookPopUp back={this.togglePopup} confirm={this.confirmReservation}/> : null
+                    }
                 </div>
             </div>
         );
