@@ -12,13 +12,19 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            isAuthenticated: false, //false!!!!!
+            isAuthenticated: false,
             screen: 'search'
         };
     }
 
     authenticate() {
         this.setState({isAuthenticated: true});
+    }
+
+    logout() {
+        this.setState({isAuthenticated: false});
+        this.setScreen('search');
+        localStorage.removeItem('jwt');
     }
 
     setScreen(newScreen) {
@@ -31,8 +37,8 @@ class App extends Component {
                 {this.state.isAuthenticated ?
                     <Route path="/">
                         {this.state.screen === 'search'
-                            ? <SearchScreen setScreen={this.setScreen.bind(this)}/>
-                            : <Reservations setScreen={this.setScreen.bind(this)}/>}
+                            ? <SearchScreen setScreen={this.setScreen.bind(this)} logout={this.logout.bind(this)}/>
+                            : <Reservations setScreen={this.setScreen.bind(this)} logout={this.logout.bind(this)}/>}
                     </Route> :
                     <Switch>
                         <Route path="/register">

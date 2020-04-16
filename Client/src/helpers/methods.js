@@ -1,3 +1,3 @@
 export function toMySqlDate(date) {
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate() + 1}`;
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }

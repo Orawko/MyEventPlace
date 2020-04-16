@@ -1,12 +1,13 @@
 import React, {Component} from 'react';
 import '../styles/SearchScreen.css';
-import Line from '../components/line';
 import ResultList from '../components/list';
 import 'react-date-range/dist/styles.css'; // main style file
 import 'react-date-range/dist/theme/default.css'; // theme css file
 import {DateRange} from 'react-date-range';
 import {toMySqlDate} from '../helpers/methods';
 import {BookPopUp} from '../components/popups';
+import {getSearchResults} from '../helpers/rest';
+import ScreenHeader from '../components/header';
 
 
 class SearchScreen extends Component {
@@ -24,77 +25,32 @@ class SearchScreen extends Component {
             minCapacity: 0,
             resultsAvailable: [],
             showPopup: false,
-            bookingRoomIndex: 0
+            bookingRoomData: {}
         };
     }
 
-    togglePopup = (index) => {
-        console.log(index);
+    getItemData = (roomData) => {
+        roomData.dateStart = this.state.from;
+        roomData.dateEnd = this.state.to;
         this.setState({
             showPopup: !this.state.showPopup,
-            bookingRoomIndex: index
+            bookingRoomData: roomData
         });
-        this.getSearchResults();
     };
 
-    confirmReservation = () => {
-        const formData = new URLSearchParams();
-        formData.append('idRooms', `${this.state.bookingRoomIndex}`);
-        formData.append('from', `${this.state.from}`);
-        formData.append('to', `${this.state.to}`);
-
-        console.log(this.state);
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Authorization": `${localStorage.getItem('jwt')}`
-            },
-            body: formData.toString(),
-        };
-        fetch('http://localhost:3000/add', requestOptions)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                if (data && data.affectedRows === 1) {
-                    alert('your reservation is pending!')
-                    this.togglePopup(0);
-                } else {
-                    alert(`Invalid email or password`);
-                }
-            })
-            .catch(() => alert(`Invalid email or password`));
+    closePopup = () => {
+        this.updateSearchResults();
+        this.setState({
+            showPopup: !this.state.showPopup,
+            bookingRoomData: {}
+        });
     };
 
-
-    getSearchResults() {
-        const requestOptions = {
-            method: 'GET',
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Authorization": `${localStorage.getItem('jwt')}`
-            }
-        };
-        fetch(`http://localhost:3000/result/${this.state.from}/${this.state.to}/${this.state.maxPricePerDay}/${this.state.minCapacity}`, requestOptions)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                if (data && data.length > 0) {
-                    this.setState({
-                        resultsAvailable: data
-                    }, () => {
-                        console.log(this.state)
-                    });
-                } else {
-                    this.setState({
-                        resultsAvailable: []
-                    }, () => {
-                        console.log(this.state)
-                    });
-                    alert(`No rooms available!`);
-                }
-            })
-            .catch(() => alert(`Error occurred! try later or login again`))
+    updateSearchResults() {
+        const {from, to, maxPricePerDay, minCapacity} = this.state;
+        getSearchResults(from, to, maxPricePerDay, minCapacity).then(data => {
+            this.setState({resultsAvailable: data})
+        })
     }
 
     handleDateSelect(date) {
@@ -113,20 +69,7 @@ class SearchScreen extends Component {
         return (
             <div id={'main'}>
                 <div id={'container'}>
-                    <div id={'homeHeader'}>
-                        <div id={'homeLogo'}>
-                            <img src={require('../images/horizontal.png')} alt="My event place"/>
-                        </div>
-                        <Line color="white" height={1}/>
-                        <div id={"homeNavButtons"}>
-                            <h2 className={'navButtonHighlighted'} onClick={() => {
-                                this.props.setScreen("search")
-                            }}>Find place </h2>
-                            <h2 className={'navButtonText'} onClick={() => {
-                                this.props.setScreen("reservations")
-                            }}>My reservations</h2>
-                        </div>
-                    </div>
+                    <ScreenHeader {...this.props}/>
                     <div id={'homeContent'}>
                         <div id={'dateRangeWrapper'}>
                             <DateRange
@@ -156,15 +99,16 @@ class SearchScreen extends Component {
                             </div>
                             <button id={'loginButton'}
                                     onClick={() => {
-                                        this.getSearchResults()
+                                        this.updateSearchResults()
                                     }}
                             >Search
                             </button>
                         </div>
                     </div>
-                    <ResultList data={this.state.resultsAvailable} myReservations={false} showPopup={this.togglePopup}/>
+                    <ResultList data={this.state.resultsAvailable} myReservations={false}
+                                getItemData={this.getItemData}/>
                     {this.state.showPopup ?
-                        <BookPopUp back={this.togglePopup} confirm={this.confirmReservation}/> : null
+                        <BookPopUp back={this.closePopup} data={this.state.bookingRoomData}/> : null
                     }
                 </div>
             </div>

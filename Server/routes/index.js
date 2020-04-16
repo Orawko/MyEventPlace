@@ -17,14 +17,14 @@ router.get('/', middleware.checkToken, function (req, res, next) {
 router.get('/result/:from/:to/:maxPricePerDay/:minCapacity', middleware.checkToken, function (req, res, next) {
     const findCollidingRoomNumbers = `SELECT DISTINCT Rooms.roomNumber\
     from Reservations NATURAL JOIN Rooms WHERE \
-    ("${req.params.from}" <= dateEnd AND "${req.params.to}" >= dateStart) AND \
-    pricePerDay < ${req.params.maxPricePerDay} AND capacity >= ${req.params.minCapacity}`;
+    ("${req.params.from}" <= dateEnd AND "${req.params.to}" >= dateStart)`;
 
     const reservationLength = `SELECT DATEDIFF('${req.params.to}', '${req.params.from}')+1`;
 
-    const query = `SELECT *, (${reservationLength}) as days FROM Rooms WHERE Rooms.roomNumber NOT IN (${findCollidingRoomNumbers});`;
-    console.log(query);
-    con.query(query, function (err, result, fields) {
+    const findRooms = `SELECT *, (${reservationLength}) as days FROM Rooms WHERE Rooms.roomNumber NOT IN (${findCollidingRoomNumbers})\
+    AND pricePerDay < ${req.params.maxPricePerDay} AND capacity >= ${req.params.minCapacity};`;
+    console.log(findRooms);
+    con.query(findRooms, function (err, result, fields) {
         if (err) throw err;
         res.send(result);
     });

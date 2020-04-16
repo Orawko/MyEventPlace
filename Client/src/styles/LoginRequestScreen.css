@@ -12,7 +12,7 @@
     min-height: 80vh;
     width: 80vw;
     border-radius: 25px;
-    margin: auto;
+    margin: 5vh auto auto;
     display: flex;
 
     align-items: center;
@@ -96,6 +96,15 @@ button:focus {
     outline: none;
 }
 
-#returnLink{
+#returnLink {
     color: white;
+}
+
+#registerGui {
+    height: 300px;
+    width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: column;
 }

@@ -1,7 +1,8 @@
 import React, {Component} from 'react'
-import Line from "../components/line";
 import ResultList from '../components/list';
-import {DeleteReservationPopUp, EditReservationPopUp} from '../components/popups';
+import {DeleteReservationPopUp, EditReservationPopUp,} from '../components/popups';
+import {getMyReservations} from '../helpers/rest';
+import ScreenHeader from "../components/header";
 
 class Reservations extends Component {
     constructor(props) {
@@ -14,7 +15,7 @@ class Reservations extends Component {
     }
 
     componentDidMount() {
-        this.getMyReservations()
+        this.updateReservations();
     }
 
     getReservationToChangeData = (reservationData, popUpType) => {
@@ -30,7 +31,13 @@ class Reservations extends Component {
             switchPopUp: null,
             reservationToChange: {}
         });
-        this.getMyReservations()
+        this.updateReservations();
+    };
+
+    updateReservations = () => {
+        getMyReservations().then(data => {
+            this.setState({reservations: data})
+        });
     };
 
     renderPopUp = (status) => {
@@ -45,51 +52,14 @@ class Reservations extends Component {
         }
     };
 
-    getMyReservations() {
-        const requestOptions = {
-            method: 'GET',
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Authorization": `${localStorage.getItem('jwt')}`
-            }
-        };
-        fetch(`http://localhost:3000/user`, requestOptions)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                if (data && data.length > 0) {
-                    this.setState({
-                        reservations: data
-                    }, () => {
-                        console.log(this.state)
-                    });
-                } else {
-                }
-            })
-            .catch(() => alert(`Error occurred! try later or login again`))
-    }
-
     render() {
         return (
             <div id={'main'}>
                 <div id={'container'}>
-                    <div id={'homeHeader'}>
-                        <div id={'homeLogo'}>
-                            <img src={require('../images/horizontal.png')} alt="My event place"/>
-                        </div>
-                        <Line color="white" height={1}/>
-                        <div id={"homeNavButtons"}>
-                            <h2 className={'navButtonText'} onClick={() => {
-                                this.props.setScreen("search")
-                            }}>Find place </h2>
-                            <h2 className={'navButtonHighlighted'} onClick={() => {
-                                this.props.setScreen("reservations")
-                            }}>My reservations</h2>
-                        </div>
-                    </div>
+                    <ScreenHeader {...this.props}/>
                     <div id={'reservationList'}>
                         <ResultList data={this.state.reservations} myReservations={true}
-                                    showPopup={this.getReservationToChangeData}/>
+                                    getItemData={this.getReservationToChangeData}/>
                     </div>
                     {this.renderPopUp(this.state.switchPopUp)}
                 </div>

@@ -3,7 +3,7 @@ import Line from './line';
 import "../fontello/css/gates.css"
 
 const SearchedRoom = ({singleData, handleClick}) => {
-    const {roomNumber, days, pricePerDay, capacity, description, image, idRooms} = singleData;
+    const {roomNumber, days, pricePerDay, capacity, description, image} = singleData;
     return <li>
         <div className={'roomOffer'}>
             <div className={'roomInfo'}>
@@ -18,7 +18,7 @@ const SearchedRoom = ({singleData, handleClick}) => {
             <div className={'roomDescription'}>
                 <h4>{description}</h4>
                 <button id={'bookButton'} onClick={() => {
-                    handleClick(idRooms)
+                    handleClick(singleData)
                 }}>Book
                 </button>
             </div>
@@ -40,8 +40,8 @@ const MyReservation = ({singleData, handleClick}) => {
                 <div>
                     <h4><i className={'icon-dollar'}/>{price}</h4>
                     <br/>
-                    <h5>From: {dateStart.slice(0, 10)}</h5>
-                    <h5>To: {dateEnd.slice(0, 10)}</h5>
+                    <h5>From: {dateStart}</h5>
+                    <h5>To: {dateEnd}</h5>
                     <h5>Status: {status}</h5>
                 </div>
             </div>
@@ -66,13 +66,13 @@ const MyReservation = ({singleData, handleClick}) => {
     </li>;
 };
 
-const ResultList = ({data, myReservations, showPopup}) => (
+const ResultList = ({data, myReservations, getItemData}) => (
     <ul id={'roomsList'}>
         {data.length > 0 ? <Line color={'white'} height={1}/> : null}
         {data.map(item => {
             return myReservations ?
-                <MyReservation key={item.idReservations} singleData={item} handleClick={showPopup}/> :
-                <SearchedRoom key={item.roomNumber} singleData={item} handleClick={showPopup}/>
+                <MyReservation key={item.idReservations} singleData={item} handleClick={getItemData}/> :
+                <SearchedRoom key={item.roomNumber} singleData={item} handleClick={getItemData}/>
         })}
     </ul>
 );
