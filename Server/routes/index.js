@@ -14,26 +14,46 @@ router.get('/', middleware.checkToken, function (req, res, next) {
     res.send("index");
 });
 
-router.get('/result/:from/:to', middleware.checkToken, function (req, res, next) {
-    const query = `SELECT * from Reservations NATURAL JOIN Rooms WHERE NOT \
-    ("${req.params.from}" <= dateEnd AND "${req.params.to}" >= dateStart);`;
-    console.log(query);
-    con.query(query, function (err, result, fields) {
+router.get('/result/:from/:to/:maxPricePerDay/:minCapacity', middleware.checkToken, function (req, res, next) {
+    const findCollidingRoomNumbers = `SELECT DISTINCT Rooms.roomNumber\
+    from Reservations NATURAL JOIN Rooms WHERE \
+    ("${req.params.from}" <= dateEnd AND "${req.params.to}" >= dateStart)`;
+
+    const reservationLength = `SELECT DATEDIFF('${req.params.to}', '${req.params.from}')+1`;
+
+    const findRooms = `SELECT *, (${reservationLength}) as days FROM Rooms WHERE Rooms.roomNumber NOT IN (${findCollidingRoomNumbers})\
+    AND pricePerDay < ${req.params.maxPricePerDay} AND capacity >= ${req.params.minCapacity};`;
+    console.log(findRooms);
+    con.query(findRooms, function (err, result, fields) {
         if (err) throw err;
         res.send(result);
     });
 });
 
-router.get('/add/:idUsers/:idRooms/:from/:to', middleware.checkToken, function (req, res, next) {
-    const query = `INSERT INTO Reservations (idUsers, idRooms, dateStart, dateEnd, price, status) VALUES \
-    ("${req.params.idUsers}", "${req.params.idRooms}", "${req.params.from}", "${req.params.to}", \
-    (SELECT DATEDIFF('${req.params.to}', '${req.params.from}')+1)* \
-    (SELECT pricePerDay from Rooms where idRooms=${req.params.idRooms}), "pending");`;
+router.post('/add', middleware.checkToken, function (req, res, next) {
+    let idRooms = req.body.idRooms;
+    let from = req.body.from;
+    let to = req.body.to;
 
-    console.log(query);
-    con.query(query, function (err, result, fields) {
+    const findCollidingReservations = `SELECT COUNT(*) as collidingReservations from Reservations NATURAL JOIN Rooms WHERE \
+    ("${from}" <= dateEnd AND "${to}" >= dateStart ) AND idRooms=${idRooms};`;
+
+    const insertNewReservation = `INSERT INTO Reservations (idUsers, idRooms, dateStart, dateEnd, price, status) VALUES \
+    ("${req.decoded.userData.idUsers}", "${idRooms}", "${from}", "${to}", \
+    (SELECT DATEDIFF('${to}', '${from}')+1)* \
+    (SELECT pricePerDay from Rooms where idRooms=${idRooms}), "pending");`;
+
+    con.query(findCollidingReservations, function (err, result, fields) {
         if (err) throw err;
-        res.send(result);
+        if (result[0].collidingReservations === 0) {
+            console.log(insertNewReservation);
+            con.query(insertNewReservation, function (err, result, fields) {
+                if (err) throw err;
+                res.send(result);
+            });
+        } else {
+            res.send(false);
+        }
     });
 });
 

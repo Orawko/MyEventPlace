@@ -6,8 +6,7 @@ const Line = ({color, height}) => (
             border: `1px solid ${color}`,
             backgroundColor: color,
             height: height,
-            width: `100%`,
-            margin: 2,
+            width: `100%`
         }}
     />
 );

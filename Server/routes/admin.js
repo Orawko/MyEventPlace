@@ -48,12 +48,12 @@ router.get('/decline/:idReservations', middleware.checkAdmin, function (req, res
 
 //update reservation
 router.get('/update/:from/:to/:idUsers/:idReservations', middleware.checkAdmin, function (req, res, next) {
-    const collidingReservationsQuery = `SELECT COUNT(*) as count from Reservations NATURAL JOIN Rooms WHERE \
+    const collidingReservationsQuery = `SELECT COUNT(*) as collidingReservations from Reservations NATURAL JOIN Rooms WHERE \
     ("${req.params.from}" <= dateEnd AND "${req.params.to}" >= dateStart ) AND idRooms=${req.params.idRooms};`;
     console.log(collidingReservationsQuery);
     con.query(collidingReservationsQuery, function (err, result, fields) {
         if (err) throw err;
-        if (result[0].count === 1) {
+        if (result[0].collidingReservations === 1) {
             const deleteQuery = `DELETE FROM Reservations WHERE idReservations=${req.params.idReservations} LIMIT 1;`;
             console.log(deleteQuery);
             con.query(deleteQuery, function (err, result, fields) {

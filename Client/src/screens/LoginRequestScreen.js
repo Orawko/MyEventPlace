@@ -30,9 +30,8 @@ class LoginRequestScreen extends Component {
             .then(data => {
                 console.log(data);
                 if (data && data.success) {
-                    console.log(this.props);
+                    localStorage.setItem('jwt', data.token);
                     this.props.authenticate();
-                    //this.setState({redirect: true})
                 } else {
                     alert(`Invalid email or password`);
                 }
@@ -41,12 +40,6 @@ class LoginRequestScreen extends Component {
     }
 
     render() {
-        const {redirect} = this.state;
-
-        if (redirect) {
-            return <Redirect to='../'/>;
-        }
-
         return (
             <div id={'main'}>
                 <div id={'container'}>

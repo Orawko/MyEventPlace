@@ -1,5 +1,4 @@
-import React, {Component, useEffect} from 'react';
-import '../styles/register.css';
+import React, {Component} from 'react';
 import {Redirect} from "react-router-dom";
 
 class LoginRequestScreen extends Component {

@@ -3,12 +3,9 @@ import SearchScreen from './screens/SearchScreen'
 import Register from './screens/Register'
 import LoginRequestScreen from './screens/LoginRequestScreen'
 import Reservations from './screens/Reservations'
+import "./fontello/css/gates.css"
 
-import {
-    BrowserRouter as Router,
-    Switch,
-    Route, Redirect,
-} from "react-router-dom";
+import {BrowserRouter as Router, Route, Switch,} from "react-router-dom";
 
 class App extends Component {
 
@@ -21,9 +18,13 @@ class App extends Component {
     }
 
     authenticate() {
-        this.setState({isAuthenticated: true}, () => {
-            console.log(this.state)
-        });
+        this.setState({isAuthenticated: true});
+    }
+
+    logout() {
+        this.setState({isAuthenticated: false});
+        this.setScreen('search');
+        localStorage.removeItem('jwt');
     }
 
     setScreen(newScreen) {
@@ -36,8 +37,8 @@ class App extends Component {
                 {this.state.isAuthenticated ?
                     <Route path="/">
                         {this.state.screen === 'search'
-                            ? <SearchScreen setScreen={this.setScreen.bind(this)}/>
-                            : <Reservations setScreen={this.setScreen.bind(this)}/>}
+                            ? <SearchScreen setScreen={this.setScreen.bind(this)} logout={this.logout.bind(this)}/>
+                            : <Reservations setScreen={this.setScreen.bind(this)} logout={this.logout.bind(this)}/>}
                     </Route> :
                     <Switch>
                         <Route path="/register">
