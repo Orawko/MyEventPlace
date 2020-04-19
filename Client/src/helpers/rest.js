@@ -15,23 +15,21 @@ export function deleteReservation(data) {
     fetch('http://localhost:3000/user/delete', requestOptions)
         .then(response => response.json())
         .then(data => {
-            console.log(data);
-            if (data) {
+            if (data && data.success) {
                 alert('Your reservation has been removed!')
             } else {
                 alert(`Error occured!`);
             }
         })
-        .catch(() => alert(`Invalid email or password`));
+        .catch(() => alert(`Please login again.`));
 }
 
 export function confirmReservation(data) {
     const formData = new URLSearchParams();
     formData.append('idRooms', `${data.idRooms}`);
-    formData.append('from', `${data.dateStart}`);
-    formData.append('to', `${data.dateEnd}`);
+    formData.append('dateStart', `${data.dateStart}`);
+    formData.append('dateEnd', `${data.dateEnd}`);
 
-    console.log(data);
     const requestOptions = {
         method: 'POST',
         headers: {
@@ -43,26 +41,24 @@ export function confirmReservation(data) {
     fetch('http://localhost:3000/add', requestOptions)
         .then(response => response.json())
         .then(data => {
-            console.log(data);
-            if (data && data.affectedRows === 1) {
+            if (data && data.success) {
                 alert('Your reservation is pending!');
             } else {
-                alert(`Invalid email or password`);
+                alert(`Error occurred!`);
             }
         })
-        .catch(() => alert(`Invalid email or password`));
+        .catch(() => alert(`Please login again.`));
 }
 
 export function editReservation(idRooms, dateStart, dateEnd, idReservations) {
     const formData = new URLSearchParams();
     formData.append('idRooms', `${idRooms}`);
-    formData.append('from', `${dateStart}`);
-    formData.append('to', `${dateEnd}`);
+    formData.append('dateStart', `${dateStart}`);
+    formData.append('dateEnd', `${dateEnd}`);
     formData.append('idReservations', `${idReservations}`);
 
-    console.log(idRooms);
     const requestOptions = {
-        method: 'POST',
+        method: 'PUT',
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
             "Authorization": `${localStorage.getItem('jwt')}`
@@ -73,13 +69,13 @@ export function editReservation(idRooms, dateStart, dateEnd, idReservations) {
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            if (data) {
-                alert('Your reservation is pending!');
+            if (data && data.success) {
+                alert('Your changed reservation is pending!');
             } else {
                 alert(`Selected dates collides with other reservations`);
             }
         })
-        .catch(() => alert(`Error occurred`));
+        .catch(() => alert(`Please login again.`));
 }
 
 export async function getMyReservations() {
@@ -92,7 +88,6 @@ export async function getMyReservations() {
     };
     const response = await fetch(`http://localhost:3000/user`, requestOptions);
     return await response.json().then(data => {
-        console.log(data);
         if (data && data.length > 0) {
             return data;
         } else {
@@ -101,7 +96,7 @@ export async function getMyReservations() {
     });
 }
 
-export async function getSearchResults(from, to, price, capacity) {
+export async function getSearchResults(dateStart, dateEnd, price, capacity) {
     const requestOptions = {
         method: 'GET',
         headers: {
@@ -109,13 +104,33 @@ export async function getSearchResults(from, to, price, capacity) {
             "Authorization": `${localStorage.getItem('jwt')}`
         }
     };
-    const response = await fetch(`http://localhost:3000/result/${from}/${to}/${price}/${capacity}`, requestOptions);
+    const response = await fetch(`http://localhost:3000/result/${dateStart}/${dateEnd}/${price}/${capacity}`, requestOptions);
     return await response.json().then(data => {
         if (data && data.length > 0) {
             return data;
         } else {
             alert(`No rooms available!`);
             return [];
+        }
+    });
+}
+
+
+export async function userAuthenticated() {
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": `${localStorage.getItem('jwt')}`
+        }
+    };
+    const response = await fetch(`http://localhost:3000/login`, requestOptions);
+    return await response.json().then(data => {
+        if (data && data.timeLeft > 0) {
+            return true;
+        } else {
+            alert(`Please login again.`);
+            return false;
         }
     });
 }

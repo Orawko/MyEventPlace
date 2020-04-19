@@ -1,58 +1,63 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
 const config = require('../helpers/databaseConfig');
+const middleware = require('../helpers/middleware');
+const mysql = require('mysql');
 const con = mysql.createConnection(config);
-let middleware = require('../helpers/middleware');
 
 con.connect(function (err) {
-    if (err) throw err;
+    if (err) {
+        console.log(err);
+    }
 });
 
-router.get('/', middleware.checkToken, function (req, res, next) {
-    console.log(req.decoded);
-    res.send("index");
-});
+router.get('/result/:dateStart/:dateEnd/:maxPricePerDay/:minCapacity', middleware.checkToken, function (req, res, next) {
+    const {dateStart, dateEnd, maxPricePerDay, minCapacity} = req.params;
 
-router.get('/result/:from/:to/:maxPricePerDay/:minCapacity', middleware.checkToken, function (req, res, next) {
-    const findCollidingRoomNumbers = `SELECT DISTINCT Rooms.roomNumber\
-    from Reservations NATURAL JOIN Rooms WHERE \
-    ("${req.params.from}" <= dateEnd AND "${req.params.to}" >= dateStart)`;
+    const findCollidingRoomNumbers = `SELECT DISTINCT Rooms.roomNumber from Reservations NATURAL JOIN Rooms\
+    WHERE ("${dateStart}" <= dateEnd AND "${dateEnd}" >= dateStart)`;
 
-    const reservationLength = `SELECT DATEDIFF('${req.params.to}', '${req.params.from}')+1`;
+    const reservationLength = `SELECT DATEDIFF('${dateEnd}', '${dateStart}')+1`;
 
     const findRooms = `SELECT *, (${reservationLength}) as days FROM Rooms WHERE Rooms.roomNumber NOT IN (${findCollidingRoomNumbers})\
-    AND pricePerDay < ${req.params.maxPricePerDay} AND capacity >= ${req.params.minCapacity};`;
-    console.log(findRooms);
+    AND pricePerDay < ${maxPricePerDay} AND capacity >= ${minCapacity};`;
+
     con.query(findRooms, function (err, result, fields) {
-        if (err) throw err;
+        if (err) {
+            console.log(err);
+        }
         res.send(result);
     });
 });
 
 router.post('/add', middleware.checkToken, function (req, res, next) {
-    let idRooms = req.body.idRooms;
-    let from = req.body.from;
-    let to = req.body.to;
+    const idRooms = req.body.idRooms;
+    const dateStart = req.body.dateStart;
+    const dateEnd = req.body.dateEnd;
 
-    const findCollidingReservations = `SELECT COUNT(*) as collidingReservations from Reservations NATURAL JOIN Rooms WHERE \
-    ("${from}" <= dateEnd AND "${to}" >= dateStart ) AND idRooms=${idRooms};`;
+    const findCollidingReservations = `SELECT COUNT(*) as collidingReservations from Reservations NATURAL JOIN Rooms\
+    WHERE ("${dateStart}" <= dateEnd AND "${dateEnd}" >= dateStart ) AND idRooms=${idRooms};`;
 
-    const insertNewReservation = `INSERT INTO Reservations (idUsers, idRooms, dateStart, dateEnd, price, status) VALUES \
-    ("${req.decoded.userData.idUsers}", "${idRooms}", "${from}", "${to}", \
-    (SELECT DATEDIFF('${to}', '${from}')+1)* \
-    (SELECT pricePerDay from Rooms where idRooms=${idRooms}), "pending");`;
+    const calculatePrice = `(SELECT DATEDIFF('${dateEnd}', '${dateStart}')+1)\
+    * (SELECT pricePerDay from Rooms where idRooms=${idRooms})`;
+
+    const createReservation = `INSERT INTO Reservations (idUsers, idRooms, dateStart, dateEnd, price, status) 
+    VALUES ("${req.decoded.userData.idUsers}", "${idRooms}", "${dateStart}", "${dateEnd}", ${calculatePrice}, "pending");`;
 
     con.query(findCollidingReservations, function (err, result, fields) {
-        if (err) throw err;
+        if (err) {
+            console.log(err);
+        }
         if (result[0].collidingReservations === 0) {
-            console.log(insertNewReservation);
-            con.query(insertNewReservation, function (err, result, fields) {
-                if (err) throw err;
+            console.log(createReservation);
+            con.query(createReservation, function (err, result, fields) {
+                if (err) {
+                    console.log(err);
+                }
                 res.send(result);
             });
         } else {
-            res.send(false);
+            res.send({success: false});
         }
     });
 });

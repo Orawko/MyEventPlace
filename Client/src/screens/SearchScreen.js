@@ -19,8 +19,8 @@ class SearchScreen extends Component {
                 endDate: new Date(),
                 key: 'selection',
             },
-            from: '2020-01-03',
-            to: '2020-01-03',
+            dateStart: toMySqlDate(new Date()),
+            dateEnd: toMySqlDate(new Date()),
             maxPricePerDay: Number.MAX_SAFE_INTEGER,
             minCapacity: 0,
             resultsAvailable: [],
@@ -30,8 +30,8 @@ class SearchScreen extends Component {
     }
 
     getItemData = (roomData) => {
-        roomData.dateStart = this.state.from;
-        roomData.dateEnd = this.state.to;
+        roomData.dateStart = this.state.dateStart;
+        roomData.dateEnd = this.state.dateEnd;
         this.setState({
             showPopup: !this.state.showPopup,
             bookingRoomData: roomData
@@ -39,31 +39,32 @@ class SearchScreen extends Component {
     };
 
     closePopup = () => {
-        this.updateSearchResults();
         this.setState({
             showPopup: !this.state.showPopup,
             bookingRoomData: {}
         });
+        this.updateSearchResults();
     };
 
     updateSearchResults() {
-        const {from, to, maxPricePerDay, minCapacity} = this.state;
-        getSearchResults(from, to, maxPricePerDay, minCapacity).then(data => {
+        const {dateStart, dateEnd, maxPricePerDay, minCapacity} = this.state;
+        getSearchResults(dateStart, dateEnd, maxPricePerDay, minCapacity).then(data => {
             this.setState({resultsAvailable: data})
         })
     }
 
     handleDateSelect(date) {
+        const {startDate, endDate} = date.selection;
+
         this.setState(prevState => {
             let selectionRange = Object.assign({}, prevState.selectionRange);
-            selectionRange.startDate = date.selection.startDate;
-            selectionRange.endDate = date.selection.endDate;
-            let from = toMySqlDate(date.selection.startDate);
-            let to = toMySqlDate(date.selection.endDate);
-
-            return {selectionRange, from: from, to: to};
+            selectionRange.startDate = startDate;
+            selectionRange.endDate = endDate;
+            let sqlDateStart = toMySqlDate(startDate);
+            let sqlDateEnd = toMySqlDate(endDate);
+            return {selectionRange, dateStart: sqlDateStart, dateEnd: sqlDateEnd};
         })
-    };
+    }
 
     render() {
         return (

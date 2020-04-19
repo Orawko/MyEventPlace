@@ -1,0 +1,46 @@
+.adminDataContainer {
+    background-color: whitesmoke;
+    width: 95%;
+    height: auto;
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.adminDataHeader {
+    color: #39488b;
+    text-align: center;
+}
+
+.adminListItem {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.adminHeader {
+    width: 95%;
+    height: auto;
+    margin: 20px;
+    position: relative;
+}
+
+table {
+    width: 70%;
+    font-size: 15px;
+}
+
+tr {
+    display: flex;
+}
+
+th {
+    flex: 1;
+    text-align: left;
+    overflow: hidden;
+}
+
+th:hover {
+    overflow: visible;
+}

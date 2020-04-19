@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import '../styles/popup.css';
 import {confirmReservation, deleteReservation, editReservation} from '../helpers/rest';
+import {adminEditReservation} from "../helpers/adminRest";
 import {DateRange} from "react-date-range";
 import {toMySqlDate} from "../helpers/methods";
 
@@ -77,8 +78,8 @@ export class EditReservationPopUp extends Component {
                 endDate: new Date(),
                 key: 'selection',
             },
-            from: '2020-01-03',
-            to: '2020-01-03'
+            dateStart: '2020-01-03',
+            dateEnd: '2020-01-03'
         }
     }
 
@@ -88,22 +89,24 @@ export class EditReservationPopUp extends Component {
 
     handleEdit = () => {
         const {idRooms, idReservations} = this.props.data;
-        const {from, to} = this.state;
-        editReservation(idRooms, from, to, idReservations);
+        const {dateStart, dateEnd} = this.state;
+        this.props.adminEdit ? adminEditReservation(idRooms, dateStart, dateEnd, idReservations)
+            : editReservation(idRooms, dateStart, dateEnd, idReservations);
         this.props.back();
     };
 
     handleDateSelect(date) {
+        const {startDate, endDate} = date.selection;
+
         this.setState(prevState => {
             let selectionRange = Object.assign({}, prevState.selectionRange);
-            selectionRange.startDate = date.selection.startDate;
-            selectionRange.endDate = date.selection.endDate;
-            let from = toMySqlDate(date.selection.startDate);
-            let to = toMySqlDate(date.selection.endDate);
-
-            return {selectionRange, from: from, to: to};
+            selectionRange.startDate = startDate;
+            selectionRange.endDate = endDate;
+            let sqlDateStart = toMySqlDate(startDate);
+            let sqlDateEnd = toMySqlDate(endDate);
+            return {selectionRange, dateStart: sqlDateStart, dateEnd: sqlDateEnd};
         })
-    };
+    }
 
     render() {
         const {roomNumber} = this.props.data;
@@ -123,7 +126,7 @@ export class EditReservationPopUp extends Component {
                     <div>
                         <br/>
                         <h4>Do you want to confirm new dates?</h4>
-                        <h4>{roomNumber} from: {this.state.from} to: {this.state.to}?</h4>
+                        <h4>{roomNumber} from: {this.state.dateStart} to: {this.state.dateEnd}?</h4>
                         <br/>
                         <div id={'popupButtonsContainer'}>
                             <button className="confirm" onClick={this.handleEdit}>
