@@ -1,26 +1,30 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
 const config = require('../helpers/databaseConfig');
+const mysql = require('mysql');
 const con = mysql.createConnection(config);
 
 con.connect(function (err) {
-    if (err) throw err;
+    if (err) {
+        console.log(err);
+    }
 });
 
 router.post('/', function (req, res, next) {
-    let email = req.body.email;
-    let name = req.body.name;
-    let surname = req.body.surname;
-    let phone = req.body.phone;
-    let password = req.body.password;
+    const email = req.body.email;
+    const name = req.body.name;
+    const surname = req.body.surname;
+    const phone = req.body.phone;
+    const password = req.body.password;
 
-    const query = `INSERT INTO Users (email, name, surname, phone, password, superuser) VALUES \
-    ("${email}", "${name}", "${surname}", "${phone}", "${password}", 0);`;
+    const query = `INSERT INTO Users (email, name, surname, phone, password, superuser) \
+    VALUES ("${email}", "${name}", "${surname}", "${phone}", "${password}", 0);`;
     console.log(query);
     con.query(query,
         function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             res.send(result);
         });
 });

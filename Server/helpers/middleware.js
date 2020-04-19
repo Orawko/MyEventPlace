@@ -2,7 +2,7 @@ let jwt = require('jsonwebtoken');
 const config = require('./config.js');
 
 let checkToken = (req, res, next) => {
-    let token = req.headers['x-access-token'] || req.headers['authorization']; // Express headers are auto converted to lowercase
+    let token = req.headers['x-access-token'] || req.headers['authorization'];
     if (token && token.startsWith('Bearer ')) {
         token = token.slice(7, token.length);
     }
@@ -10,19 +10,19 @@ let checkToken = (req, res, next) => {
     if (token) {
         jwt.verify(token, config.secret, (err, decoded) => {
             if (err) {
-                res.redirect('http://localhost:3000/login');
+                console.log(err);
             } else {
                 req.decoded = decoded;
                 next();
             }
         });
     } else {
-        res.redirect('http://localhost:3000/login');
+        console.log('token missing!');
     }
 };
 
 let checkAdmin = (req, res, next) => {
-    let token = req.headers['x-access-token'] || req.headers['authorization']; // Express headers are auto converted to lowercase
+    let token = req.headers['x-access-token'] || req.headers['authorization'];
     if (token && token.startsWith('Bearer ')) {
         token = token.slice(7, token.length);
     }
@@ -30,23 +30,14 @@ let checkAdmin = (req, res, next) => {
     if (token) {
         jwt.verify(token, config.secret, (err, decoded) => {
             if (err) {
-                res.redirect('http://localhost:3000/login');
-            } else {
-                if (decoded.email !== "jan@o2.pl") {
-                    res.redirect('http://localhost:3000/');
-
-                } else {
-                    req.decoded = decoded; //passes data to request
-                    next();
-                }
+                console.log(err);
+            } else if (decoded.userData.superuser === 1) {
+                req.decoded = decoded;
+                next();
             }
         });
     } else {
-        res.redirect('http://localhost:3000/login');
-        // return res.json({
-        //     success: false,
-        //     message: 'Auth token is not supplied'
-        // });
+        console.log('token missing!');
     }
 };
 

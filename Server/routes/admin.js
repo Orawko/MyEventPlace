@@ -1,93 +1,144 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
 const config = require('../helpers/databaseConfig');
+const middleware = require('../helpers/middleware');
+const mysql = require('mysql');
 const con = mysql.createConnection(config);
-let middleware = require('../helpers/middleware');
 
 con.connect(function (err) {
-    if (err) throw err;
+    if (err) {
+        console.log(err);
+    }
 });
 
-router.get('/', middleware.checkAdmin,
-    function (req, res, next) {
-        res.send("Admin panel");
-    });
+router.get('/users', middleware.checkAdmin, function (req, res, next) {
+    const getUsersData = `SELECT * from Users ORDER BY surname DESC, name DESC;`;
 
-//accept pending
-router.get('/accept/:idReservations', middleware.checkAdmin, function (req, res, next) {
-    const deleteQuery = `UPDATE Reservations SET status="accepted" WHERE idReservations="${req.params.idReservations}" LIMIT 1;`;
-    console.log(deleteQuery);
-    con.query(deleteQuery, function (err, result, fields) {
+    con.query(getUsersData, function (err, result, fields) {
+        if (err) {
+            console.log(err);
+        }
+        res.send(result);
+    });
+});
+
+router.get('/pending', middleware.checkAdmin, function (req, res, next) {
+    const status = 'pending';
+    const getPendingReservations = `SELECT * from Reservations NATURAL JOIN Users NATURAL JOIN Rooms\
+    WHERE Reservations.status="${status}" ORDER BY Reservations.dateStart;`;
+
+    con.query(getPendingReservations, function (err, result, fields) {
+        if (err) {
+            console.log(err);
+        }
+        res.send(result);
+    });
+});
+
+router.get('/reservations', middleware.checkAdmin, function (req, res, next) {
+    const status = 'pending';
+    const getAllReservations = `SELECT * from Reservations NATURAL JOIN Users NATURAL JOIN Rooms\
+    WHERE Reservations.status!="${status}" ORDER BY Reservations.dateStart;`;
+
+    con.query(getAllReservations, function (err, result, fields) {
+        if (err) {
+            console.log(err);
+        }
+        res.send(result);
+    });
+});
+
+
+router.put('/accept', middleware.checkAdmin, function (req, res, next) {
+    const idReservations = req.body.idReservations;
+    const newStatus = 'confirmed';
+
+    const confirmPendingReservation = `UPDATE Reservations SET status="${newStatus}"\
+    WHERE idReservations="${idReservations}" LIMIT 1;`;
+
+    console.log(confirmPendingReservation);
+    con.query(confirmPendingReservation, function (err, result, fields) {
         if (err) {
             console.log(err);
         }
         if (result.affectedRows === 1) {
-            res.send(true);
+            res.send({success: true});
         } else {
-            res.send(false);
+            res.send({success: false});
         }
     });
 });
 
-//decline pending or delete reservation
-router.get('/decline/:idReservations', middleware.checkAdmin, function (req, res, next) {
-    const deleteQuery = `DELETE FROM Reservations WHERE idReservations="${req.params.idReservations}" LIMIT 1;`;
-    console.log(deleteQuery);
-    con.query(deleteQuery, function (err, result, fields) {
+
+router.delete('/delete', middleware.checkAdmin, function (req, res, next) {
+    const idReservations = req.body.idReservations;
+
+    const deleteReservation = `DELETE FROM Reservations WHERE idReservations="${idReservations}" LIMIT 1;`;
+
+    console.log(deleteReservation);
+    con.query(deleteReservation, function (err, result, fields) {
         if (err) {
             console.log(err);
         }
         if (result.affectedRows === 1) {
-            res.send(true);
+            res.send({success: true});
         } else {
-            res.send(false);
+            res.send({success: false});
         }
     });
 });
 
-//update reservation
-router.get('/update/:from/:to/:idUsers/:idReservations', middleware.checkAdmin, function (req, res, next) {
-    const collidingReservationsQuery = `SELECT COUNT(*) as collidingReservations from Reservations NATURAL JOIN Rooms WHERE \
-    ("${req.params.from}" <= dateEnd AND "${req.params.to}" >= dateStart ) AND idRooms=${req.params.idRooms};`;
-    console.log(collidingReservationsQuery);
-    con.query(collidingReservationsQuery, function (err, result, fields) {
-        if (err) throw err;
-        if (result[0].collidingReservations === 1) {
-            const deleteQuery = `DELETE FROM Reservations WHERE idReservations=${req.params.idReservations} LIMIT 1;`;
-            console.log(deleteQuery);
-            con.query(deleteQuery, function (err, result, fields) {
-                if (err) throw err;
+
+router.put('/update', middleware.checkAdmin, function (req, res, next) {
+    const idReservations = req.body.idReservations;
+    const dateStart = req.body.dateStart;
+    const dateEnd = req.body.dateEnd;
+    const idRooms = req.body.idRooms;
+
+    const collidingReservations = `SELECT COUNT(*) as collidingReservations from Reservations NATURAL JOIN Rooms \
+    WHERE ("${dateStart}" <= dateEnd AND "${dateEnd}" >= dateStart ) AND idRooms=${idRooms} AND idReservations!=${idReservations};`;
+
+    const calculatePrice = `(SELECT DATEDIFF('${dateEnd}', '${dateStart}')+1)* \
+    (SELECT pricePerDay from Rooms where idRooms=${idRooms})`;
+
+    const editReservation = `UPDATE Reservations SET dateStart="${dateStart}", dateEnd="${dateEnd}", price=${calculatePrice}\
+    WHERE idReservations="${idReservations}" LIMIT 1;`;
+
+    console.log(collidingReservations);
+    con.query(collidingReservations, function (err, result, fields) {
+        if (err) {
+            console.log(err);
+        }
+        if (result[0].collidingReservations === 0) {
+
+            console.log(editReservation);
+            con.query(editReservation, function (err, result, fields) {
+                if (err) {
+                    console.log(err);
+                }
+                res.send({success: true});
             });
-
-            const newReservationQuery = `INSERT INTO Reservations (idUsers, idRooms, dateStart, dateEnd, price, status) VALUES \
-            ("${req.params.idUsers}", "${req.params.idRooms}", "${req.params.from}", "${req.params.to}", \
-            (SELECT DATEDIFF('${req.params.to}', '${req.params.from}')+1)* \
-            (SELECT pricePerDay from Rooms where idRooms=${req.params.idRooms}), "pending");`;
-            console.log(newReservationQuery);
-            con.query(newReservationQuery, function (err, result, fields) {
-                if (err) throw err;
-                res.send(true);
-            });
-
         } else {
-            res.send(false);
+            res.send({success: false});
         }
     });
 });
 
-//delete user
-router.get('/deleteUser/:email', middleware.checkAdmin, function (req, res, next) {
-    const deleteQuery = `DELETE FROM Users WHERE email="${req.params.email}" LIMIT 1;`;
+
+router.delete('/user', middleware.checkAdmin, function (req, res, next) {
+    const idUsers = req.body.idUsers;
+
+    const deleteQuery = `DELETE FROM Users WHERE idUsers="${idUsers}" LIMIT 1;`;
+
     console.log(deleteQuery);
     con.query(deleteQuery, function (err, result, fields) {
         if (err) {
             console.log(err);
         }
         if (result.affectedRows === 1) {
-            res.send(true);
+            res.send({success: true});
         } else {
-            res.send(false);
+            res.send({success: false});
         }
     });
 });

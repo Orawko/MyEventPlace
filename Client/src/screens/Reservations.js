@@ -46,7 +46,8 @@ class Reservations extends Component {
                 return <DeleteReservationPopUp confirm={this.getReservationToChangeData} back={this.closePopup}
                                                data={this.state.reservationToChange}/>;
             case 'edit':
-                return <EditReservationPopUp back={this.closePopup} data={this.state.reservationToChange}/>;
+                return <EditReservationPopUp back={this.closePopup} data={this.state.reservationToChange}
+                                             adminEdit={false}/>;
             default:
                 return null;
         }

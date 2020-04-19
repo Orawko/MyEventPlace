@@ -128,7 +128,7 @@ img {
 #logout {
     position: absolute;
     right: 10px;
-    top: 0px;
+    top: 0;
 }
 
 #logout:hover {

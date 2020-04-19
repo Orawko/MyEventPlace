@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import '../styles/LoginRequestScreen.css';
-import { Redirect } from "react-router-dom";
 
 class LoginRequestScreen extends Component {
     constructor(props) {
